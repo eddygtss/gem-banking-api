@@ -35,3 +35,6 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### Firebase Config ###
+/src/main/resources/gem-bankers-united-firebase.json
