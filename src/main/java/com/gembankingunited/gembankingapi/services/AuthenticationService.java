@@ -106,7 +106,12 @@ public class AuthenticationService {
         session.setAttribute("SPRING_SECURITY_CONTEXT", sc);
     }
 
-    public void logout() {
+    public void logout(HttpServletRequest request) {
+        HttpSession session;
         SecurityContextHolder.clearContext();
+        session= request.getSession(false);
+        if(session != null) {
+            session.invalidate();
+        }
     }
 }

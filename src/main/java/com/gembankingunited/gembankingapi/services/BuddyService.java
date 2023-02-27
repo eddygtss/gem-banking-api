@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -17,22 +18,44 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 @Slf4j
-@Service
+@Component
 public class BuddyService {
-    @Autowired
     public AccountService accountService;
-    @Autowired
     public AuthenticationService authenticationService;
 
-    public Buddy getBuddies() throws ExecutionException, AccountInvalidException, InterruptedException {
-        return accountService.getBuddy(authenticationService.getCurrentUser());
+    public BuddyService(AccountService accountService, AuthenticationService authenticationService) {
+        this.accountService = accountService;
+        this.authenticationService = authenticationService;
     }
 
-    public List<Transaction> getBuddiesTransactions(Buddy buddyInfo) throws ExecutionException, AccountInvalidException, InterruptedException {
-        return accountService.getBuddyTransactions(buddyInfo);
+    public Buddy getBuddies() {
+        Buddy userBuddies = Buddy.builder().build();
+        try {
+            String currentUser = authenticationService.getCurrentUser();
+
+            userBuddies = accountService.getBuddy(currentUser);
+
+            return userBuddies;
+        } catch (Exception exception) {
+            log.error(exception.getMessage());
+        }
+
+        return userBuddies;
     }
 
-    public ResponseEntity<String> requestBuddy(Request buddyRequest) throws Exception {
+    public List<Transaction> getBuddiesTransactions(Buddy buddyInfo) {
+        List<Transaction> transactions = new ArrayList<>();
+        try {
+            transactions = accountService.getBuddyTransactions(buddyInfo);
+            return transactions;
+        } catch (Exception exception) {
+            log.error(exception.getMessage());
+        }
+
+        return transactions;
+    }
+
+    public ResponseEntity<String> requestBuddy(Request buddyRequest) {
         String requester = authenticationService.getCurrentUser();
         String responder = buddyRequest.getResponder().toLowerCase();
         buddyRequest.setResponder(responder);
@@ -92,9 +115,7 @@ public class BuddyService {
         return new ResponseEntity<>("Successfully sent " + buddyRequest.getResponder() + " a buddy request.", HttpStatus.CREATED);
     }
 
-    public ResponseEntity<String> approveBuddyRequest(String id) throws Exception {
-        Request parsed = new Request(id);
-
+    public ResponseEntity<String> approveBuddyRequest(Request parsed) throws Exception {
         String currentUser = authenticationService.getCurrentUser();
         Buddy responderBuddy = accountService.getBuddy(currentUser);
         Profile responderProfile = accountService.getProfile(currentUser);
@@ -116,15 +137,6 @@ public class BuddyService {
                 respondersRequestList.remove(request);
                 requestersRequestList.removeIf(requesterRequest -> requesterRequest.getId().equals(request.getId()));
 
-                request.setRequestStatus(Status.APPROVED);
-
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
-                String currentTime = LocalDateTime.now().format(formatter);
-                request.setDate(currentTime);
-
-                requestersRequestList.add(request);
-                respondersRequestList.add(request);
-
                 requesterBuddyList.add(responderProfile);
                 requesterBuddy.setBuddyList(requesterBuddyList);
 
@@ -145,11 +157,9 @@ public class BuddyService {
         return ResponseEntity.badRequest().body("There was an error approving this request.");
     }
 
-    public ResponseEntity<String> denyBuddyRequest(String id) throws Exception {
+    public ResponseEntity<String> denyBuddyRequest(Request parsed) throws Exception {
         Buddy responderBuddy = accountService.getBuddy(authenticationService.getCurrentUser());
         List<Request> responderBuddyRequests = responderBuddy.getBuddyRequests();
-
-        Request parsed = new Request(id);
 
         for (Request request: responderBuddyRequests) {
             if (request.getId().equals(parsed.getId())) {
@@ -163,15 +173,6 @@ public class BuddyService {
 
                 respondersRequestList.remove(request);
                 requestersRequestList.removeIf(requesterRequest -> requesterRequest.getId().equals(request.getId()));
-
-                request.setRequestStatus(Status.DENIED);
-
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
-                String currentTime = LocalDateTime.now().format(formatter);
-                request.setDate(currentTime);
-
-                requestersRequestList.add(request);
-                respondersRequestList.add(request);
 
                 updatedBuddies.add(requesterBuddy);
                 updatedBuddies.add(responderBuddy);

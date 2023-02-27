@@ -1,16 +1,14 @@
 package com.gembankingunited.gembankingapi.models;
 
 import com.gembankingunited.gembankingapi.enums.PrivacyLevel;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 
 @Slf4j
-@Getter
-@Setter
+@Data
+@Builder
 @RequiredArgsConstructor
 public class Buddy {
     private String documentId;

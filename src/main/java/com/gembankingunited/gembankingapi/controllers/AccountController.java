@@ -55,16 +55,16 @@ public class AccountController {
         return accountService.deleteAccount(documentId);
     }
 
-    @PostMapping(value = "/login")
+    @PostMapping( "/login")
     public ResponseEntity<Void> login(@RequestBody Account loginAccountRequest, final HttpServletRequest request) {
         authenticationService.login(request, loginAccountRequest.getUsername().toLowerCase(), loginAccountRequest.getPassword());
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @GetMapping("/logout")
-    public ResponseEntity<Void> logout() {
-        authenticationService.logout();
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(final HttpServletRequest request) {
+        authenticationService.logout(request);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

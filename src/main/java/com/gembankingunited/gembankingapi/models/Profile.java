@@ -1,12 +1,10 @@
 package com.gembankingunited.gembankingapi.models;
 
 import com.gembankingunited.gembankingapi.enums.PrivacyLevel;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
-@Getter
-@Setter
+@Data
+@Builder
 @RequiredArgsConstructor
 public class Profile {
     private String documentId;

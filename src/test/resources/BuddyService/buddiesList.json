@@ -1,0 +1,16 @@
+{
+  "documentId": "user_test1@gembanking.com",
+  "privacySetting": "PRIVATE",
+  "buddyList": [
+    {
+      "documentId": "user_test@gembanking.com",
+      "username": "test@gembanking.com",
+      "firstName": "Eddy",
+      "lastName": "Herrera",
+      "privacySetting": "PRIVATE",
+      "status": "Hi, I'm new to Gem Banking!"
+    }
+  ],
+  "buddyRequests": [],
+  "buddyTransactions": []
+}

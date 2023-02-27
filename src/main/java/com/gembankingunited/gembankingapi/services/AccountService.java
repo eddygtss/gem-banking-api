@@ -9,6 +9,7 @@ import com.google.firebase.cloud.FirestoreClient;
 import com.gembankingunited.gembankingapi.enums.PrivacyLevel;
 import com.gembankingunited.gembankingapi.exceptions.AccountInvalidException;
 import com.gembankingunited.gembankingapi.models.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -16,6 +17,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 @Service
+@Slf4j
 public class AccountService {
     public static final String COL_USERS ="users";
     public static final String COL_BANK_ACCOUNTS ="bank_accounts";
@@ -113,14 +115,18 @@ public class AccountService {
 
     public List<String> getBuddyListDocumentIds(List<Profile> profiles) {
         List<String> documentIds = new ArrayList<>();
-        for (Profile profile: profiles){
-            documentIds.add(profile.getDocumentId());
+        try {
+            for (Profile profile : profiles) {
+                documentIds.add(profile.getDocumentId());
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage());
         }
 
         return documentIds;
     }
 
-    public List<Transaction> getBuddyTransactions(Buddy buddy) throws ExecutionException, AccountInvalidException, InterruptedException {
+    public List<Transaction> getBuddyTransactions(Buddy buddy) {
         List<Transaction> allTransactions = new ArrayList<>();
         List<Transaction> publicTransactions = new ArrayList<>();
         List<String> myBuddies = getBuddyListDocumentIds(buddy.getBuddyList());
@@ -145,42 +151,48 @@ public class AccountService {
         return publicTransactions;
     }
 
-    public List<Buddy> getListOfBuddyInfo(List<String> documentIds) throws ExecutionException, InterruptedException, AccountInvalidException {
+    public List<Buddy> getListOfBuddyInfo(List<String> documentIds) {
         List<Buddy> allBuddies = new ArrayList<>();
 
-        for (String buddyDocumentIds: documentIds) {
-            allBuddies.add(getBuddy(buddyDocumentIds));
+        for (String buddyDocumentId: documentIds) {
+            allBuddies.add(getBuddy(buddyDocumentId));
         }
 
         return allBuddies;
     }
 
-    public Buddy getBuddy(String documentId) throws ExecutionException, InterruptedException, AccountInvalidException {
-        Firestore dbFirestore = FirestoreClient.getFirestore();
+    public Buddy getBuddy(String documentId) {
+        Buddy currentUsersBuddyInfo = Buddy.builder().build();
+        try {
+            Firestore dbFirestore = FirestoreClient.getFirestore();
 
-        DocumentReference buddiesDocumentReference = dbFirestore.collection(COL_BUDDIES).document(documentId);
-        ApiFuture<DocumentSnapshot> buddiesFuture = buddiesDocumentReference.get();
-        DocumentSnapshot buddiesDocument = buddiesFuture.get();
-        Buddy currentUsersBuddyInfo;
+            DocumentReference buddiesDocumentReference = dbFirestore.collection(COL_BUDDIES).document(documentId);
+            ApiFuture<DocumentSnapshot> buddiesFuture = buddiesDocumentReference.get();
+            DocumentSnapshot buddiesDocument = buddiesFuture.get();
 
-        if (buddiesDocument.exists()) {
-            currentUsersBuddyInfo = buddiesDocument.toObject(Buddy.class);
-            assert currentUsersBuddyInfo != null;
-            if (currentUsersBuddyInfo.getBuddyList().size() > 0) {
-                List<Profile> profiles = currentUsersBuddyInfo.getBuddyList();
-                ArrayList<Profile> updatedProfiles = new ArrayList<>();
-                for (Profile profile: profiles) {
-                    Profile updated = getProfile(profile.getDocumentId());
+            if (buddiesDocument.exists()) {
+                currentUsersBuddyInfo = buddiesDocument.toObject(Buddy.class);
+                assert currentUsersBuddyInfo != null;
+                if (currentUsersBuddyInfo.getBuddyList().size() > 0) {
+                    List<Profile> profiles = currentUsersBuddyInfo.getBuddyList();
+                    ArrayList<Profile> updatedProfiles = new ArrayList<>();
+                    for (Profile profile : profiles) {
+                        Profile updated = getProfile(profile.getDocumentId());
 
-                    updatedProfiles.add(updated);
+                        updatedProfiles.add(updated);
+                    }
+                    currentUsersBuddyInfo.setBuddyList(updatedProfiles);
                 }
-                currentUsersBuddyInfo.setBuddyList(updatedProfiles);
-            }
 
-            return currentUsersBuddyInfo;
-        } else {
-            throw new AccountInvalidException("The account " + documentId.substring(5) + " is not valid.");
+                return currentUsersBuddyInfo;
+            } else {
+                throw new AccountInvalidException("The account " + documentId.substring(5) + " is not valid.");
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage());
         }
+
+        return currentUsersBuddyInfo;
     }
 
     public Profile getProfile(String documentId) throws ExecutionException, InterruptedException, AccountInvalidException {

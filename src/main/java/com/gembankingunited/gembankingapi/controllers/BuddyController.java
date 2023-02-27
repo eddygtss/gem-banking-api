@@ -19,12 +19,12 @@ public class BuddyController {
     public BuddyService buddyService;
 
     @GetMapping("/buddies")
-    public Buddy getBuddyInfo() throws InterruptedException, ExecutionException, AccountInvalidException {
+    public Buddy getBuddyInfo() {
         return buddyService.getBuddies();
     }
 
     @GetMapping("/buddy-feed")
-    public List<Transaction> getBuddyFeed() throws ExecutionException, AccountInvalidException, InterruptedException {
+    public List<Transaction> getBuddyFeed() {
         return buddyService.getBuddiesTransactions(getBuddyInfo());
     }
 
@@ -49,17 +49,17 @@ public class BuddyController {
 //    }
 
     @PostMapping("/add-buddy")
-    public ResponseEntity<String> addBuddy(@RequestBody Request buddyRequest) throws Exception {
+    public ResponseEntity<String> addBuddy(@RequestBody Request buddyRequest) {
         return buddyService.requestBuddy(buddyRequest);
     }
 
     @PostMapping("/approve-buddy")
-    public ResponseEntity<String> approveBuddy(@RequestBody String id) throws Exception {
+    public ResponseEntity<String> approveBuddy(@RequestBody Request id) throws Exception {
         return buddyService.approveBuddyRequest(id);
     }
 
     @PostMapping("/deny-buddy")
-    public ResponseEntity<String> denyBuddy(@RequestBody String id) throws Exception {
+    public ResponseEntity<String> denyBuddy(@RequestBody Request id) throws Exception {
         return buddyService.denyBuddyRequest(id);
     }
 }

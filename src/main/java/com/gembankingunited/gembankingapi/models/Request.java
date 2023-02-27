@@ -2,15 +2,11 @@ package com.gembankingunited.gembankingapi.models;
 
 import com.gembankingunited.gembankingapi.enums.PrivacyLevel;
 import com.gembankingunited.gembankingapi.enums.Status;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.UUID;
 
-@Getter
-@Setter
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class Request {
