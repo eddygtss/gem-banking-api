@@ -23,41 +23,46 @@ public class TransactionService {
     @Autowired
     public AuthenticationService authenticationService;
 
-    public List<Transaction> retrieveTransactions() throws Exception {
+    public List<Transaction> retrieveTransactions() {
         AccountInfo accountInfo = accountService.getAccountInfo(authenticationService.getCurrentUser());
 
         return accountInfo.getTransactionHistory();
     }
 
-    public ResponseEntity<Void> recordTransaction(Transaction transaction) throws Exception {
+    public ResponseEntity<Void> recordTransaction(Transaction transaction) {
         AccountInfo accountInfo = accountService.getAccountInfo(authenticationService.getCurrentUser());
 
         List<Transaction> transactions = accountInfo.getTransactionHistory();
         double balance = accountInfo.getBalance();
         TransactionType transactionType = transaction.getTransactionType();
 
-        if (transaction.getAmount() <= 0.0) throw new InvalidTransactionException("Amount must be a positive value.");
+        try {
+            if (transaction.getAmount() <= 0.0)
+                throw new InvalidTransactionException("Amount must be a positive value.");
 
 
-        if (transaction.getDate() == null || transaction.getDate().equals("")) {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
-            String currentTime = LocalDateTime.now().format(formatter);
-            transaction.setDate(currentTime);
-        }
-
-        if (transactionType == TransactionType.DEPOSIT) {
-            transaction.setTransactionStatus(Status.PROCESSED);
-            transactions.add(transaction);
-            balance += transaction.getAmount();
-        } else if (transactionType == TransactionType.WITHDRAWAL) {
-            if (balance - transaction.getAmount() < 0.0) {
-                throw new InsufficientFundsException(String.format("Insufficient funds. Current balance is $%.2f", balance));
+            if (transaction.getDate() == null || transaction.getDate().equals("")) {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+                String currentTime = LocalDateTime.now().format(formatter);
+                transaction.setDate(currentTime);
             }
-            transaction.setTransactionStatus(Status.PROCESSED);
-            transactions.add(transaction);
-            balance -= transaction.getAmount();
-        } else {
-            throw new InvalidTransactionException("Invalid or missing transaction type");
+
+            if (transactionType == TransactionType.DEPOSIT) {
+                transaction.setTransactionStatus(Status.PROCESSED);
+                transactions.add(transaction);
+                balance += transaction.getAmount();
+            } else if (transactionType == TransactionType.WITHDRAWAL) {
+                if (balance - transaction.getAmount() < 0.0) {
+                    throw new InsufficientFundsException(String.format("Insufficient funds. Current balance is $%.2f", balance));
+                }
+                transaction.setTransactionStatus(Status.PROCESSED);
+                transactions.add(transaction);
+                balance -= transaction.getAmount();
+            } else {
+                throw new InvalidTransactionException("Invalid or missing transaction type");
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage());
         }
 
         accountInfo.setTransactionHistory(transactions);
@@ -68,7 +73,7 @@ public class TransactionService {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    public ResponseEntity<String> sendTransaction(Transaction transaction) throws Exception {
+    public ResponseEntity<String> sendTransaction(Transaction transaction) {
         String sender = authenticationService.getCurrentUser();
         String recipient = transaction.getRecipient().toLowerCase();
         transaction.setRecipient(recipient);
@@ -102,38 +107,43 @@ public class TransactionService {
             // TransactionType for the sender
             TransactionType transactionType = transaction.getTransactionType();
 
-            if (transaction.getAmount() <= 0.0) throw new InvalidTransactionException("Amount must be a positive value.");
+            try {
+                if (transaction.getAmount() <= 0.0)
+                    throw new InvalidTransactionException("Amount must be a positive value.");
 
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
-            String currentTime = LocalDateTime.now().format(formatter);
-            transaction.setDate(currentTime);
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+                String currentTime = LocalDateTime.now().format(formatter);
+                transaction.setDate(currentTime);
 
-            // We check if the transaction type is SEND because we are subtracting money from the account balance
-            if (transactionType == TransactionType.SEND) {
-                if (senderBalance - transaction.getAmount() < 0.0) {
-                    throw new InsufficientFundsException(String.format("Insufficient funds. Current balance is $%.2f", senderBalance));
+                // We check if the transaction type is SEND because we are subtracting money from the account balance
+                if (transactionType == TransactionType.SEND) {
+                    if (senderBalance - transaction.getAmount() < 0.0) {
+                        throw new InsufficientFundsException(String.format("Insufficient funds. Current balance is $%.2f", senderBalance));
+                    }
+                    transaction.setTransactionStatus(Status.SENT);
+                    senderTransactions.add(transaction);
+                    senderBalance -= transaction.getAmount();
+
+                    // Updating the sender's account
+                    senderAccountInfo.setTransactionHistory(senderTransactions);
+                    senderAccountInfo.setBalance(senderBalance);
+
+                    // New Transaction object for the recipient so we can change status and type.
+                    Transaction recipientTransaction = new Transaction(transaction);
+                    recipientTransaction.setTransactionStatus(Status.RECEIVED);
+                    recipientTransaction.setTransactionType(TransactionType.TRANSFER);
+
+                    recipientTransactions.add(recipientTransaction);
+                    recipientBalance += transaction.getAmount();
+
+                    // Updating the recipient's account
+                    recipientAccountInfo.setTransactionHistory(recipientTransactions);
+                    recipientAccountInfo.setBalance(recipientBalance);
+                } else {
+                    throw new InvalidTransactionException("Invalid or missing transaction type");
                 }
-                transaction.setTransactionStatus(Status.SENT);
-                senderTransactions.add(transaction);
-                senderBalance -= transaction.getAmount();
-
-                // Updating the sender's account
-                senderAccountInfo.setTransactionHistory(senderTransactions);
-                senderAccountInfo.setBalance(senderBalance);
-
-                // New Transaction object for the recipient so we can change status and type.
-                Transaction recipientTransaction = new Transaction(transaction);
-                recipientTransaction.setTransactionStatus(Status.RECEIVED);
-                recipientTransaction.setTransactionType(TransactionType.TRANSFER);
-
-                recipientTransactions.add(recipientTransaction);
-                recipientBalance += transaction.getAmount();
-
-                // Updating the recipient's account
-                recipientAccountInfo.setTransactionHistory(recipientTransactions);
-                recipientAccountInfo.setBalance(recipientBalance);
-            } else {
-                throw new InvalidTransactionException("Invalid or missing transaction type");
+            } catch (Exception e) {
+                log.error(e.getMessage());
             }
 
             // Adding the sender and recipient account infos into the updated accounts list to return

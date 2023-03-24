@@ -1,9 +1,8 @@
 package com.gembankingunited.gembankingapi.controllers;
 
-import com.gembankingunited.gembankingapi.exceptions.AccountExistsException;
-import com.gembankingunited.gembankingapi.exceptions.AccountInvalidException;
 import com.gembankingunited.gembankingapi.models.Account;
 import com.gembankingunited.gembankingapi.models.AccountInfo;
+import com.gembankingunited.gembankingapi.models.LoginRequest;
 import com.gembankingunited.gembankingapi.services.AccountService;
 import com.gembankingunited.gembankingapi.services.AuthenticationService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,8 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.concurrent.ExecutionException;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -31,7 +28,7 @@ public class AccountController {
 
     // Create new user account API endpoint (POST/Create)
     @PostMapping("/register")
-    public ResponseEntity<Void> createAccount(@RequestBody Account createAccountRequest) throws InterruptedException, ExecutionException, AccountExistsException {
+    public ResponseEntity<Void> createAccount(@RequestBody Account createAccountRequest) {
         authenticationService.createUser(createAccountRequest);
 
         return new ResponseEntity<>(HttpStatus.CREATED);
@@ -39,24 +36,24 @@ public class AccountController {
 
     // Get Account API endpoint (GET/Read)
     @GetMapping("/account")
-    public AccountInfo getAccount() throws InterruptedException, ExecutionException, AccountInvalidException {
+    public AccountInfo getAccount() {
         return accountService.getAccountInfo(authenticationService.getCurrentUser());
     }
 
     // Update Account API endpoint (PUT/Update)
     @PutMapping("/update")
-    public String updateAccount(@RequestBody Account account) throws InterruptedException, ExecutionException {
+    public String updateAccount(@RequestBody Account account) {
         return accountService.updateAccount(account);
     }
 
     // Delete Account API endpoint (Delete)
     @DeleteMapping("/delete")
-    public String deleteAccount(@RequestParam String documentId) throws InterruptedException, ExecutionException {
+    public String deleteAccount(@RequestParam String documentId) {
         return accountService.deleteAccount(documentId);
     }
 
     @PostMapping( "/login")
-    public ResponseEntity<Void> login(@RequestBody Account loginAccountRequest, final HttpServletRequest request) {
+    public ResponseEntity<Void> login(@RequestBody LoginRequest loginAccountRequest, final HttpServletRequest request) {
         authenticationService.login(request, loginAccountRequest.getUsername().toLowerCase(), loginAccountRequest.getPassword());
 
         return new ResponseEntity<>(HttpStatus.OK);

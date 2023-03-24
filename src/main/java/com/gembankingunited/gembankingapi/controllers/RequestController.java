@@ -18,7 +18,7 @@ public class RequestController {
     public RequestService requestService;
 
     @PostMapping("/request")
-    public ResponseEntity<String> requestFunds(@RequestBody Request requestFundsTransaction) throws Exception {
+    public ResponseEntity<String> requestFunds(@RequestBody Request requestFundsTransaction) {
         return requestService.Request(requestFundsTransaction);
     }
 

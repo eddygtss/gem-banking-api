@@ -27,12 +27,12 @@ public class ProfileController {
     public AuthenticationService authenticationService;
 
     @GetMapping("/profile")
-    public Profile getProfile() throws InterruptedException, ExecutionException, AccountInvalidException {
+    public Profile getProfile() {
         return accountService.getProfile(authenticationService.getCurrentUser());
     }
 
     @PutMapping("/update-status")
-    public ResponseEntity<String> updateStatus(@RequestBody String status) throws Exception {
+    public ResponseEntity<String> updateStatus(@RequestBody String status) {
         if (status.length() >= 100) {
             return ResponseEntity.badRequest().body("Status text limit is 100 characters.");
         }
@@ -46,7 +46,8 @@ public class ProfileController {
     }
 
     @PutMapping("/update-username")
-    public ResponseEntity<String> updateUsername(@RequestBody String username) throws Exception {
+    public ResponseEntity<String> updateUsername(@RequestBody String username) {
+        String currentUser = authenticationService.getCurrentUser();
         if (username.length() >= 16) {
             return ResponseEntity.badRequest().body("Username must be less than 16 characters.");
         }
@@ -58,8 +59,8 @@ public class ProfileController {
             }
         }
 
-        Profile profile = accountService.getProfile(authenticationService.getCurrentUser());
-        Account account = accountService.getAccount(authenticationService.getCurrentUser());
+        Profile profile = accountService.getProfile(currentUser);
+        Account account = accountService.getAccount(currentUser);
         account.setUsername(username);
         profile.setUsername(username);
 

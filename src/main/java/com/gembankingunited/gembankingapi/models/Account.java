@@ -1,15 +1,13 @@
 package com.gembankingunited.gembankingapi.models;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 
 import java.io.Serializable;
 
-@Getter
-@Setter
-@RequiredArgsConstructor
+@Data
+@NoArgsConstructor
+@Builder
 public class Account implements Serializable {
     private static final long serialVersionUID = -1764970284520387975L;
 

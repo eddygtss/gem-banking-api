@@ -29,8 +29,7 @@ public class RequestService {
     @Autowired
     public AccountService accountService;
 
-    public ResponseEntity<String> Request(Request requestFundsTransaction)
-            throws Exception {
+    public ResponseEntity<String> Request(Request requestFundsTransaction) {
         String requester = authenticationService.getCurrentUser();
         String responder = requestFundsTransaction.getResponder().toLowerCase();
         requestFundsTransaction.setResponder(responder);

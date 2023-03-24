@@ -19,19 +19,19 @@ public class TransactionController {
     // This controller defines all of our API endpoints for Transactions.
     // Get Transactions API endpoint (GET/Read)
     @GetMapping("/transactions")
-    public List<Transaction> retrieveTransactionHistory() throws Exception  {
+    public List<Transaction> retrieveTransactionHistory() {
         return transactionService.retrieveTransactions();
     }
 
     // Post (DEPOSIT/WITHDRAWAL) Transactions API endpoint (POST/Create)
     @PostMapping("/transactions")
-    public ResponseEntity<Void> createTransaction(@RequestBody Transaction createTransactionRequest) throws Exception {
+    public ResponseEntity<Void> createTransaction(@RequestBody Transaction createTransactionRequest) {
         return transactionService.recordTransaction(createTransactionRequest);
     }
 
     // Send Transaction API endpoint (POST/Create)
     @PostMapping("/send")
-    public ResponseEntity<String> sendFunds(@RequestBody Transaction sendFundsTransaction) throws Exception {
+    public ResponseEntity<String> sendFunds(@RequestBody Transaction sendFundsTransaction) {
         return transactionService.sendTransaction(sendFundsTransaction);
     }
 }
