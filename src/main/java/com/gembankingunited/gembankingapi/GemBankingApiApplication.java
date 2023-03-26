@@ -1,5 +1,6 @@
 package com.gembankingunited.gembankingapi;
 
+import com.gembankingunited.gembankingapi.services.AccountService;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
@@ -24,7 +25,7 @@ public class GemBankingApiApplication {
 
 	@Bean
 	public UserDetailsService userDetailsService() {
-		return new com.gembankingunited.gembankingapi.services.UserService();
+		return new com.gembankingunited.gembankingapi.services.UserService(new AccountService());
 	}
 
 }

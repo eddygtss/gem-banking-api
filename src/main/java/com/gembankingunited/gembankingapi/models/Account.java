@@ -3,12 +3,14 @@ package com.gembankingunited.gembankingapi.models;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 @Data
 @NoArgsConstructor
 @Builder
 public class Account implements Serializable {
+    @Serial
     private static final long serialVersionUID = -1764970284520387975L;
 
     @Id

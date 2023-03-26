@@ -15,8 +15,11 @@ import java.util.concurrent.ExecutionException;
 @RequestMapping("/api/v1")
 @Slf4j
 public class BuddyController {
-    @Autowired
     public BuddyService buddyService;
+
+    public BuddyController(BuddyService buddyService) {
+        this.buddyService = buddyService;
+    }
 
     @GetMapping("/buddies")
     public Buddy getBuddyInfo() {

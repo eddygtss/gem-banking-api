@@ -4,12 +4,15 @@ import com.gembankingunited.gembankingapi.enums.Status;
 import com.gembankingunited.gembankingapi.enums.TransactionType;
 import com.gembankingunited.gembankingapi.exceptions.InsufficientFundsException;
 import com.gembankingunited.gembankingapi.exceptions.InvalidTransactionException;
-import com.gembankingunited.gembankingapi.models.*;
+import com.gembankingunited.gembankingapi.models.AccountInfo;
+import com.gembankingunited.gembankingapi.models.Buddy;
+import com.gembankingunited.gembankingapi.models.Profile;
+import com.gembankingunited.gembankingapi.models.Transaction;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -18,10 +21,13 @@ import java.util.List;
 @Slf4j
 @Service
 public class TransactionService {
-    @Autowired
     public AccountService accountService;
-    @Autowired
     public AuthenticationService authenticationService;
+
+    public TransactionService(AccountService accountService, AuthenticationService authenticationService) {
+        this.accountService = accountService;
+        this.authenticationService = authenticationService;
+    }
 
     public List<Transaction> retrieveTransactions() {
         AccountInfo accountInfo = accountService.getAccountInfo(authenticationService.getCurrentUser());

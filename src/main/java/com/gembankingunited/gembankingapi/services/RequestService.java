@@ -2,14 +2,11 @@ package com.gembankingunited.gembankingapi.services;
 
 import com.gembankingunited.gembankingapi.enums.Status;
 import com.gembankingunited.gembankingapi.enums.TransactionType;
-import com.gembankingunited.gembankingapi.exceptions.AccountInvalidException;
 import com.gembankingunited.gembankingapi.exceptions.InsufficientFundsException;
 import com.gembankingunited.gembankingapi.exceptions.InvalidRequesteeException;
 import com.gembankingunited.gembankingapi.exceptions.InvalidTransactionException;
 import com.gembankingunited.gembankingapi.models.*;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -19,15 +16,17 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
 
 @Slf4j
 @Service
 public class RequestService {
-    @Autowired
     public AuthenticationService authenticationService;
-    @Autowired
     public AccountService accountService;
+
+    public RequestService(AuthenticationService authenticationService, AccountService accountService) {
+        this.accountService = accountService;
+        this.authenticationService = authenticationService;
+    }
 
     public ResponseEntity<String> Request(Request requestFundsTransaction) {
         String requester = authenticationService.getCurrentUser();

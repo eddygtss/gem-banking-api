@@ -19,21 +19,18 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Locale;
 
-@Service
 @Slf4j
+@Service
 public class AuthenticationService {
-    @Autowired
     BCryptPasswordEncoder passwordEncoder;
-
-    @Autowired
-    private AuthenticationManager authManager;
-
-    @Autowired
+    private final AuthenticationManager authManager;
     private final AccountService accountService;
 
     @Autowired
-    public AuthenticationService(AccountService accountService) {
+    public AuthenticationService(AccountService accountService, AuthenticationManager authManager, BCryptPasswordEncoder passwordEncoder) {
         this.accountService = accountService;
+        this.authManager = authManager;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public String getCurrentUser() {

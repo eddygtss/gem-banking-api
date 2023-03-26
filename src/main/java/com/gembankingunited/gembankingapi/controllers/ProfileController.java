@@ -19,12 +19,15 @@ import java.util.concurrent.ExecutionException;
 @RequestMapping("/api/v1")
 @Slf4j
 public class ProfileController {
-    @Autowired
     public AccountService accountService;
 //    @Autowired
 //    public ProfileService profileService;
-    @Autowired
     public AuthenticationService authenticationService;
+
+    public ProfileController(AccountService accountService, AuthenticationService authenticationService) {
+        this.accountService = accountService;
+        this.authenticationService = authenticationService;
+    }
 
     @GetMapping("/profile")
     public Profile getProfile() {

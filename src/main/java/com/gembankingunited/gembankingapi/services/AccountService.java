@@ -18,8 +18,8 @@ import java.util.concurrent.ExecutionException;
 
 import static java.util.Collections.emptyList;
 
-@Service
 @Slf4j
+@Service
 public class AccountService {
     public static final String COL_USERS ="users";
     public static final String COL_BANK_ACCOUNTS ="bank_accounts";

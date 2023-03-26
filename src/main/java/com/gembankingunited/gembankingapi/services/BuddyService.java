@@ -1,21 +1,17 @@
 package com.gembankingunited.gembankingapi.services;
 
 import com.gembankingunited.gembankingapi.enums.Status;
-import com.gembankingunited.gembankingapi.exceptions.AccountInvalidException;
 import com.gembankingunited.gembankingapi.exceptions.BuddyExistsException;
 import com.gembankingunited.gembankingapi.models.*;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 @Slf4j
 @Component
