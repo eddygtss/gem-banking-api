@@ -10,6 +10,7 @@ import java.util.List;
 
 @Slf4j
 @RestController
+@CrossOrigin("http://localhost:3000")
 @RequestMapping("/api/v1")
 public class TransactionController {
     public TransactionService transactionService;

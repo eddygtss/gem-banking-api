@@ -7,8 +7,8 @@ import java.io.Serial;
 import java.io.Serializable;
 
 @Data
-@NoArgsConstructor
 @Builder
+@NoArgsConstructor
 public class Account implements Serializable {
     @Serial
     private static final long serialVersionUID = -1764970284520387975L;
@@ -21,8 +21,9 @@ public class Account implements Serializable {
     private String lastName;
     private String address;
     private String ssn;
+    private String roles;
 
-    public Account(String documentId, String username, String password, String firstName, String lastName, String address, String ssn) {
+    public Account(String documentId, String username, String password, String firstName, String lastName, String address, String ssn, String roles) {
         this.documentId = documentId;
         this.username = username;
         this.password = password;
@@ -30,5 +31,6 @@ public class Account implements Serializable {
         this.lastName = lastName;
         this.address = address;
         this.ssn = ssn;
+        this.roles = roles;
     }
 }

@@ -1,30 +1,32 @@
 package com.gembankingunited.gembankingapi.services;
 
-import com.google.api.core.ApiFuture;
-import com.google.cloud.firestore.DocumentReference;
-import com.google.cloud.firestore.DocumentSnapshot;
-import com.google.cloud.firestore.Firestore;
-import com.google.cloud.firestore.WriteResult;
-import com.google.firebase.cloud.FirestoreClient;
 import com.gembankingunited.gembankingapi.enums.PrivacyLevel;
 import com.gembankingunited.gembankingapi.exceptions.AccountInvalidException;
+import com.gembankingunited.gembankingapi.models.Transaction;
 import com.gembankingunited.gembankingapi.models.*;
+import com.google.api.core.ApiFuture;
+import com.google.cloud.firestore.*;
+import com.google.firebase.cloud.FirestoreClient;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 import static java.util.Collections.emptyList;
 
 @Slf4j
-@Service
+@Component
 public class AccountService {
     public static final String COL_USERS ="users";
     public static final String COL_BANK_ACCOUNTS ="bank_accounts";
     public static final String COL_BUDDIES ="buddies";
     public static final String COL_PROFILES ="profiles";
+    public static final String COL_REFRESH_TOKENS ="refresh_tokens";
 
     public void createAccount(Account account, AccountInfo accountInfo, Buddy buddies, Profile profile) throws ExecutionException, InterruptedException {
         Firestore dbFirestore = FirestoreClient.getFirestore();
@@ -33,6 +35,52 @@ public class AccountService {
         dbFirestore.collection(COL_BUDDIES).document(buddies.getDocumentId()).set(buddies);
         dbFirestore.collection(COL_PROFILES).document(profile.getDocumentId()).set(profile);
         collectionsApiFuture.get();
+    }
+
+    public void saveRefreshToken(RefreshToken refreshToken) {
+        Firestore dbFirestore = FirestoreClient.getFirestore();
+        ApiFuture<WriteResult> collectionsApiFuture = dbFirestore.collection(COL_REFRESH_TOKENS).document(refreshToken.getDocumentId()).set(refreshToken);
+        try {
+            collectionsApiFuture.get();
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+    }
+
+    public Optional<RefreshToken> findByToken(String token) {
+        try {
+            Firestore dbFirestore = FirestoreClient.getFirestore();
+            Query refreshTokenQuery = dbFirestore.collection(COL_REFRESH_TOKENS).whereEqualTo("token", token);
+            ApiFuture<QuerySnapshot> refreshTokenSnapshot = refreshTokenQuery.get();
+            QueryDocumentSnapshot refreshTokenQS = refreshTokenSnapshot.get().getDocuments().get(0);
+            RefreshToken refreshToken = RefreshToken.builder().build();
+
+            if (refreshTokenQS.exists()) {
+                HashMap<String, Object> data = (HashMap<String, Object>) refreshTokenQS.getData();
+                HashMap<String, Object> expiryDates = (HashMap<String, Object>) data.get("expiryDate");
+
+                refreshToken.setToken((String) data.get("token"));
+                refreshToken.setDocumentId((String) data.get("documentId"));
+                refreshToken.setExpiryDate(Instant.ofEpochSecond((Long) expiryDates.get("epochSecond")));
+                return Optional.of(refreshToken);
+            } else {
+                throw new AccountInvalidException();
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return Optional.empty();
+        }
+    }
+
+    public String deleteToken(String documentId) {
+        try {
+            Firestore dbFirestore = FirestoreClient.getFirestore();
+            dbFirestore.collection(COL_REFRESH_TOKENS).document(documentId).delete();
+            return "Successfully deleted " + documentId;
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return e.getMessage();
+        }
     }
 
     public Account getAccount(String documentId) {

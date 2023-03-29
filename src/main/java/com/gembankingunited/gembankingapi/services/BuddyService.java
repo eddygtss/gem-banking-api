@@ -111,7 +111,7 @@ public class BuddyService {
         return new ResponseEntity<>("Successfully sent " + buddyRequest.getResponder() + " a buddy request.", HttpStatus.CREATED);
     }
 
-    public ResponseEntity<String> approveBuddyRequest(Request parsed) throws Exception {
+    public ResponseEntity<String> approveBuddyRequest(Request parsed) {
         String currentUser = authenticationService.getCurrentUser();
         Buddy responderBuddy = accountService.getBuddy(currentUser);
         Profile responderProfile = accountService.getProfile(currentUser);
@@ -153,7 +153,7 @@ public class BuddyService {
         return ResponseEntity.badRequest().body("There was an error approving this request.");
     }
 
-    public ResponseEntity<String> denyBuddyRequest(Request parsed) throws Exception {
+    public ResponseEntity<String> denyBuddyRequest(Request parsed) {
         Buddy responderBuddy = accountService.getBuddy(authenticationService.getCurrentUser());
         List<Request> responderBuddyRequests = responderBuddy.getBuddyRequests();
 

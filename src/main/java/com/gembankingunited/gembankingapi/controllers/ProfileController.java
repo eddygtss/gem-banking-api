@@ -1,23 +1,19 @@
 package com.gembankingunited.gembankingapi.controllers;
 
-import com.gembankingunited.gembankingapi.enums.PrivacyLevel;
-import com.gembankingunited.gembankingapi.exceptions.AccountInvalidException;
 import com.gembankingunited.gembankingapi.models.Account;
 import com.gembankingunited.gembankingapi.models.Profile;
 import com.gembankingunited.gembankingapi.services.AccountService;
 import com.gembankingunited.gembankingapi.services.AuthenticationService;
-import com.gembankingunited.gembankingapi.services.ProfileService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
-@RestController
-@RequestMapping("/api/v1")
 @Slf4j
+@RestController
+@CrossOrigin("http://localhost:3000")
+@RequestMapping("/api/v1")
 public class ProfileController {
     public AccountService accountService;
 //    @Autowired

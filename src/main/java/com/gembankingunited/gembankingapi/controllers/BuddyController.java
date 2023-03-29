@@ -1,7 +1,8 @@
 package com.gembankingunited.gembankingapi.controllers;
 
-import com.gembankingunited.gembankingapi.exceptions.AccountInvalidException;
-import com.gembankingunited.gembankingapi.models.*;
+import com.gembankingunited.gembankingapi.models.Buddy;
+import com.gembankingunited.gembankingapi.models.Request;
+import com.gembankingunited.gembankingapi.models.Transaction;
 import com.gembankingunited.gembankingapi.services.BuddyService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,14 +10,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
-@RestController
-@RequestMapping("/api/v1")
 @Slf4j
+@RestController
+@CrossOrigin("http://localhost:3000")
+@RequestMapping("/api/v1")
 public class BuddyController {
     public BuddyService buddyService;
 
+    @Autowired
     public BuddyController(BuddyService buddyService) {
         this.buddyService = buddyService;
     }
@@ -57,12 +59,12 @@ public class BuddyController {
     }
 
     @PostMapping("/approve-buddy")
-    public ResponseEntity<String> approveBuddy(@RequestBody Request id) throws Exception {
+    public ResponseEntity<String> approveBuddy(@RequestBody Request id) {
         return buddyService.approveBuddyRequest(id);
     }
 
     @PostMapping("/deny-buddy")
-    public ResponseEntity<String> denyBuddy(@RequestBody Request id) throws Exception {
+    public ResponseEntity<String> denyBuddy(@RequestBody Request id) {
         return buddyService.denyBuddyRequest(id);
     }
 }

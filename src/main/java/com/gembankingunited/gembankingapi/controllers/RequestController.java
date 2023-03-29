@@ -4,13 +4,11 @@ import com.gembankingunited.gembankingapi.models.Request;
 import com.gembankingunited.gembankingapi.services.RequestService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
+@CrossOrigin("http://localhost:3000")
 @RequestMapping("/api/v1")
 public class RequestController {
     public RequestService requestService;
